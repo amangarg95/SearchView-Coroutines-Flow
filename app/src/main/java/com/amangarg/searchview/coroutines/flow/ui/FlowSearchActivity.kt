@@ -2,15 +2,15 @@ package com.amangarg.searchview.coroutines.flow.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.amangarg.searchview.coroutines.flow.databinding.ActivitySearchBinding
+import com.amangarg.searchview.coroutines.flow.databinding.ActivityFlowSearchBinding
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import com.amangarg.searchview.coroutines.flow.utils.DefaultDispatcherProvider
 import com.amangarg.searchview.coroutines.flow.utils.getQueryTextChangeStateFlow
 import kotlin.coroutines.CoroutineContext
 
-class SearchActivity : AppCompatActivity(), CoroutineScope {
-    private lateinit var binding: ActivitySearchBinding
+class FlowSearchActivity : AppCompatActivity(), CoroutineScope {
+    private lateinit var binding: ActivityFlowSearchBinding
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
@@ -19,7 +19,7 @@ class SearchActivity : AppCompatActivity(), CoroutineScope {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivitySearchBinding.inflate(layoutInflater)
+        binding = ActivityFlowSearchBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
         job = Job()
