@@ -24,6 +24,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ui.SearchActivity"
+            android:exported="true">
+        </activity>
+
+
 
     </application>
 
