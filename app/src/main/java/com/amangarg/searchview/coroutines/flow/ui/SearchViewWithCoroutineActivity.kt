@@ -3,26 +3,35 @@ package com.amangarg.searchview.coroutines.flow.ui
 import android.os.Bundle
 import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
-import com.amangarg.searchview.coroutines.flow.R
+import com.amangarg.searchview.coroutines.flow.utils.DefaultDispatcherProvider
+import com.amangarg.searchview.coroutines.flow.utils.debounce
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
+import com.amangarg.searchview.coroutines.flow.databinding.ActivityCoroutineWithSearchViewBinding
 
-class SearchViewWithCoroutineActivity: AppCompatActivity(), CoroutineScope {
+class SearchViewWithCoroutineActivity : AppCompatActivity(), CoroutineScope {
+
+    private lateinit var searchJob: Job
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + job
+        get() = Dispatchers.Main + searchJob
 
-    private lateinit var job: Job
+    private lateinit var binding: ActivityCoroutineWithSearchViewBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_coroutine_with_search_view)
-        job = Job()
-        findViewById<SearchView>(R.id.sv_search).setOnQueryTextListener(
+        binding = ActivityCoroutineWithSearchViewBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+
+        searchJob = Job()
+
+        binding.svSearchName.requestFocus()
+        binding.svSearchName.setOnQueryTextListener(
             object : SearchView.OnQueryTextListener {
 
                 override fun onQueryTextSubmit(query: String): Boolean {
@@ -30,40 +39,44 @@ class SearchViewWithCoroutineActivity: AppCompatActivity(), CoroutineScope {
                 }
 
                 override fun onQueryTextChange(newText: String): Boolean {
-                    loadCitiesDebounced(newText)
+                    loadNameDebounce(newText)
                     return true
                 }
             }
         )
     }
 
-    val loadCitiesDebounced = debounce<String>(400L, Dispatchers.IO) {
-        getDataFromAPI(it)
+    val loadNameDebounce = debounce<String>(
+        waitPeriodInMs = 300L,
+        context = DefaultDispatcherProvider().io
+    ) {
+        getMatchedName(it)
     }
 
-    fun <T> CoroutineScope.debounce(
-        waitMs: Long = 300L,
-        context: CoroutineContext,
-        destinationFunction: (T) -> Unit
-    ): (T) -> Unit {
-        var debounceJob: Job? = null
-        return { param: T ->
-            debounceJob?.cancel()
-            debounceJob = launch(context) {
-                delay(waitMs)
-                destinationFunction(param)
+    private fun getMatchedName(name: String) {
+        if (name.trim().isBlank()) {
+            return
+        }
+        launch(DefaultDispatcherProvider().io) {
+            // perform API call here
+            delay(1000)
+            val data = getResult(name)
+
+            launch(DefaultDispatcherProvider().main) {
+                binding.tvData.text = data
             }
         }
     }
 
-    private fun getDataFromAPI(text: String): String {
-        if (text.trim().isBlank()) {
-            return ""
-        }
-        launch(Dispatchers.IO) {
-            // perform API call here
-            delay(2000)
-            return text
-        }
+    /**
+     * Simulation of network data
+     */
+    private fun getResult(name: String): String {
+        return name
+    }
+
+    override fun onDestroy() {
+        searchJob.cancel()
+        super.onDestroy()
     }
 }
