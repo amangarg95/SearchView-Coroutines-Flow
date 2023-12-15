@@ -18,5 +18,10 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, FlowSearchActivity::class.java)
             startActivity(intent)
         }
+
+        binding.btnSearchWithCoroutines.setOnClickListener {
+            val intent = Intent(this, SearchViewWithCoroutineActivity::class.java)
+            startActivity(intent)
+        }
     }
 }
