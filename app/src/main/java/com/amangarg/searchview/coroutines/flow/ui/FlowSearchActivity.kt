@@ -6,6 +6,7 @@ import com.amangarg.searchview.coroutines.flow.databinding.ActivityFlowSearchBin
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import com.amangarg.searchview.coroutines.flow.utils.DefaultDispatcherProvider
+import com.amangarg.searchview.coroutines.flow.utils.getNameList
 import com.amangarg.searchview.coroutines.flow.utils.getQueryTextChangeStateFlow
 import kotlin.coroutines.CoroutineContext
 
@@ -33,11 +34,11 @@ class FlowSearchActivity : AppCompatActivity(), CoroutineScope {
 
     private fun setUpSearchStateFlow() {
         launch {
-            binding.searchView.getQueryTextChangeStateFlow()
+            binding.svSearchName.getQueryTextChangeStateFlow()
                 .debounce(300)
                 .filter { query ->
                     if (query.isEmpty()) {
-                        binding.textViewResult.text = ""
+                        binding.tvData.text = ""
                         return@filter false
                     } else {
                         return@filter true
@@ -53,7 +54,7 @@ class FlowSearchActivity : AppCompatActivity(), CoroutineScope {
                 }
                 .flowOn(DefaultDispatcherProvider().default)
                 .collect { result ->
-                    binding.textViewResult.text = result
+                    binding.tvData.text = result
                 }
         }
     }
@@ -64,7 +65,10 @@ class FlowSearchActivity : AppCompatActivity(), CoroutineScope {
     private fun dataFromNetwork(query: String): Flow<String> {
         return flow {
             delay(2000)
-            emit(query)
+            if (getNameList().contains(query)) {
+                emit(query)
+            }
+            emit("Name is not available")
         }
     }
 

@@ -12,6 +12,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 import com.amangarg.searchview.coroutines.flow.databinding.ActivityCoroutineWithSearchViewBinding
+import com.amangarg.searchview.coroutines.flow.utils.getNameList
+import kotlinx.coroutines.SupervisorJob
 
 class SearchViewWithCoroutineActivity : AppCompatActivity(), CoroutineScope {
 
@@ -72,7 +74,10 @@ class SearchViewWithCoroutineActivity : AppCompatActivity(), CoroutineScope {
      * Simulation of network data
      */
     private fun getResult(name: String): String {
-        return name
+        if (getNameList().contains(name)) {
+            return name
+        }
+        return "Name is not available"
     }
 
     override fun onDestroy() {
